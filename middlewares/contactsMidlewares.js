@@ -1,22 +1,73 @@
-const fs = require("fs").promises;
-
-const { AppError, catchAsync } = require("../utils");
+const { AppError, catchAsync, contactsValidators } = require("../utils");
+const contactService = require("../services/contactServices");
 
 /**
  * Check user exists in db by id middleware.
  */
-exports.checkContactsById = catchAsync(async (req, res, next) => {
+exports.checkContactById = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
-  if (id.length < 10) throw new AppError(400, "Invalid ID..");
+  await contactService.contactExistsById(id);
 
-  const contacts = JSON.parse(await fs.readFile("./models/contacts.json"));
+  next();
+});
 
-  const contact = contacts.find((item) => item.id === id);
+exports.checkCreateContactById = catchAsync(async (req, res, next) => {
+  const { error, value } = contactsValidators.createContactDataValidator(
+    req.body
+  );
 
-  if (!contact) throw new AppError(400, "Contact does not exist..");
+  if (error) {
+    console.log(error);
 
-  req.contact = contact;
+    throw new AppError(400, "Invalid contact data..");
+  }
+
+  await contactService.contactExists({ email: value.email });
+
+  req.body = value;
+
+  next();
+});
+
+exports.checkUpdateContactById = catchAsync(async (req, res, next) => {
+  const { error, value } = contactsValidators.updateContactDataValidator(
+    req.body
+  );
+
+  await contactService.contactExists({
+    email: value.email,
+    _id: { $ne: req.params.id },
+  });
+
+  if (error) {
+    console.log(error);
+
+    throw new AppError(400, "Invalid contact data..");
+  }
+
+  req.body = value;
+
+  next();
+});
+
+exports.checkUpdateContactFavorite = catchAsync(async (req, res, next) => {
+  const { error, value } = contactsValidators.updateContactDataValidator(
+    req.body
+  );
+
+  await contactService.contactExists({
+    email: value.email,
+    _id: { $ne: req.params.id },
+  });
+
+  if (error) {
+    console.log(error);
+
+    throw new AppError(400, "Invalid contact data..");
+  }
+
+  req.body = value;
 
   next();
 });
