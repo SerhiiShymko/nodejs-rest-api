@@ -1,6 +1,6 @@
 const { Types } = require("mongoose");
 
-const Contact = require("../models/contactsModel");
+const Contact = require("../models/contactModel");
 const { AppError } = require("../utils");
 
 /**

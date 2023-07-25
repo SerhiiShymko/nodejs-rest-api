@@ -6,7 +6,7 @@ const {
   checkCreateContactById,
   checkUpdateContactById,
   checkUpdateContactFavorite,
-} = require("../../middlewares/contactsMidlewares");
+} = require("../../middlewares/contactsMiddlewares");
 
 const router = express.Router();
 

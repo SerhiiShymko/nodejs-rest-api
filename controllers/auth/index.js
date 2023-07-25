@@ -1,3 +1,4 @@
-const user = require("./auth");
+const register = require("./register");
+const login = require("./login");
 
-module.exports = {};
+module.exports = { register, login };
