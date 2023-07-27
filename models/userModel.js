@@ -1,28 +1,25 @@
+/* eslint-disable quotes */
 const { model, Schema } = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const contactRolesEnum = require("../constans/contactRolesEnum");
+const userRolesEnum = require("../constans/userRolesEnum");
 
-const contactSchema = new Schema(
+const userSchema = new Schema(
   {
-    name: {
-      type: String,
-      required: [true, "Set name for contact"],
-    },
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
       unique: [true, "Dublicated email.."],
     },
     password: {
       type: String,
-      required: true,
+      required: [true, "Set password for user"],
       select: false,
     },
-    role: {
+    subscription: {
       type: String,
-      enum: Object.values(contactRolesEnum),
-      default: contactRolesEnum.USER,
+      enum: Object.values(userRolesEnum),
+      default: userRolesEnum.STARTER,
     },
   },
   {
@@ -34,7 +31,7 @@ const contactSchema = new Schema(
 /**
  * Pre save mongoose hook. Fires on Create and Save
  */
-contactSchema.pre("save", async function (next) {
+userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   const salt = await bcrypt.genSalt(10);
@@ -44,9 +41,9 @@ contactSchema.pre("save", async function (next) {
 });
 
 // Custom mongoose method to validate password.
-contactSchema.method.checkPassword = (candidate, hash) =>
+userSchema.method.checkPassword = (candidate, hash) =>
   bcrypt.compare(candidate, hash);
 
-const User = model("User", contactSchema);
+const User = model("User", userSchema);
 
 module.exports = User;

@@ -5,13 +5,12 @@ const authMiddlewares = require("../../middlewares/authMiddlewares");
 
 const router = Router();
 
-// signup - register new user
 router.post(
   "/register",
   authMiddlewares.checkRegisterUserData,
   authController.register
 );
 
-router.post("login", authController.login);
+router.post("/login", authController.login);
 
 module.exports = router;

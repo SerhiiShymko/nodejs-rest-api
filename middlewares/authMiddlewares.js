@@ -7,7 +7,7 @@ exports.checkRegisterUserData = catchAsync(async (req, res, next) => {
   if (error) {
     console.log(error);
 
-    throw new AppError(400, "Invalid contact data..");
+    throw new AppError(400, "Invalid user data..");
   }
 
   await userService.contactExists({ email: value.email });

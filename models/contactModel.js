@@ -1,18 +1,18 @@
-const { model, Schema } = require("mongoose");
-const bcrypt = require("bcrypt");
+const { model, Schema } = require('mongoose');
+const bcrypt = require('bcrypt');
 
-const contactRolesEnum = require("../constans/contactRolesEnum");
+const contactRolesEnum = require('../constans/contactRolesEnum');
 
 const contactSchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "Set name for contact"],
+      required: [true, 'Set name for contact'],
     },
     email: {
       type: String,
       required: true,
-      unique: [true, "Dublicated email.."],
+      unique: [true, 'Dublicated email..'],
     },
     password: {
       type: String,
@@ -30,6 +30,10 @@ const contactSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'user',
+    },
   },
   {
     timestamps: true,
@@ -40,8 +44,8 @@ const contactSchema = new Schema(
 /**
  * Pre save mongoose hook. Fires on Create and Save
  */
-contactSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+contactSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
@@ -53,6 +57,6 @@ contactSchema.pre("save", async function (next) {
 contactSchema.method.checkPassword = (candidate, hash) =>
   bcrypt.compare(candidate, hash);
 
-const Contact = model("Contact", contactSchema);
+const Contact = model('Contact', contactSchema);
 
 module.exports = Contact;

@@ -5,7 +5,7 @@ const contactRolesEnum = require("../constans/contactRolesEnum");
 const PASSWD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])(?=.{8,128})/;
 
-exports.createContactDataValidator = (data) =>
+const createContactDataValidator = (data) =>
   Joi.object()
     .options({ abortEarly: false })
     .keys({
@@ -18,7 +18,7 @@ exports.createContactDataValidator = (data) =>
     })
     .validate(data);
 
-exports.updateContactDataValidator = (data) =>
+const updateContactDataValidator = (data) =>
   Joi.object()
     .options({ abortEarly: false })
     .keys({
@@ -31,9 +31,15 @@ exports.updateContactDataValidator = (data) =>
     })
     .validate(data);
 
-exports.updateFavoriteContactDataValidator = (data) =>
+const updateFavoriteContactDataValidator = (data) =>
   Joi.object()
     .options({ abortEarly: false })
     .keys({ favorite: Joi.boolean() })
     .required()
     .validate(data);
+
+module.exports = {
+  createContactDataValidator,
+  updateContactDataValidator,
+  updateFavoriteContactDataValidator,
+};
