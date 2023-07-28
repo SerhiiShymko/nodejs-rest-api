@@ -1,20 +1,21 @@
-// const { Types } = require("mongoose");
+const { Types } = require('mongoose');
 
-const userRolesEnum = require("../constans/userRolesEnum");
-const User = require("../models/userModel");
-const { AppError } = require("../utils");
-const signToken = require("./jwtService");
+const userRolesEnum = require('../constans/userRolesEnum');
+const User = require('../models/userModel');
+const { AppError } = require('../utils');
+const signToken = require('./jwtService');
 
 /**
  * Check if contact exists services.
  * @param {Object} filter
  * @returns {Promise<void>}
  */
-exports.contactExists = async (filter) => {
+exports.contactExists = async filter => {
   const contactExists = await User.exists(filter);
 
-  if (contactExists)
-    throw new AppError(409, "Contact with this email exists..");
+  if (contactExists) {
+    throw new AppError(409, 'Contact with this email exists..');
+  }
 };
 
 /**
@@ -39,17 +40,19 @@ exports.registerUser = async (userData) => {
 
 /**
  * Check user login data and sign token.
- * @param {Object} loginData
+ * @param {Object} loginData - Об'єкт з полями `email` та `password`.
  * @returns {Object}
  */
-exports.loginUser = async (email, password) => {
-  const user = await User.findOne({ email }).select("+password");
+exports.loginUser = async loginData => {
+  const { email, password } = loginData;
 
-  if (!user) throw new AppError(401, "Not authorized");
+  const user = await User.findOne({ email }).select('+password');
+
+  if (!user) throw new AppError(401, 'Not authorized');
 
   const passwordIsValid = await user.checkPassword(password, user.password);
 
-  if (!passwordIsValid) throw new AppError(401, "Not authorized");
+  if (!passwordIsValid) throw new AppError(401, 'Not authorized');
 
   user.password = undefined;
 

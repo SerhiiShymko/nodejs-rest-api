@@ -1,7 +1,7 @@
-const { Types } = require("mongoose");
+const { Types } = require('mongoose');
 
-const Contact = require("../models/contactModel");
-const { AppError } = require("../utils");
+const Contact = require('../models/contactModel');
+const { AppError } = require('../utils');
 
 /**
  * Check if contact exists services.
@@ -11,8 +11,9 @@ const { AppError } = require("../utils");
 exports.contactExists = async (filter) => {
   const contactExists = await Contact.exists(filter);
 
-  if (contactExists)
-    throw new AppError(409, "Contact with this email exists..");
+  if (contactExists) {
+    throw new AppError(409, 'Contact with this email exists..');
+  }
 };
 
 /**
@@ -23,11 +24,11 @@ exports.contactExists = async (filter) => {
 exports.contactExistsById = async (id) => {
   const idIsValid = Types.ObjectId.isValid(id);
 
-  if (!idIsValid) throw new AppError(404, "Contact does not exist..");
+  if (!idIsValid) throw new AppError(404, 'Contact does not exist..');
 
   const contactExists = await Contact.exists({ _id: id });
 
-  if (!contactExists) throw new AppError(404, "Contact does not exist..");
+  if (!contactExists) throw new AppError(404, 'Contact does not exist..');
 };
 
 /**
@@ -95,7 +96,7 @@ exports.updateContactFavorite = async (id, favorite) => {
   );
 
   if (!updateContact) {
-    throw new AppError(404).json({ message: "Contact not found." });
+    throw new AppError(404).json({ message: 'Contact not found.' });
   }
 
   return updateContact;
