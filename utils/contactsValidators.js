@@ -1,6 +1,6 @@
-const Joi = require("joi");
+const Joi = require('joi');
 
-const contactRolesEnum = require("../constans/contactRolesEnum");
+const contactRolesEnum = require('../constans/contactRolesEnum');
 
 const PASSWD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])(?=.{8,128})/;
