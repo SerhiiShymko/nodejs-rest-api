@@ -8,7 +8,7 @@ const { AppError } = require('../utils');
  * @param {Object} filter
  * @returns {Promise<void>}
  */
-exports.contactExists = async (filter) => {
+exports.contactExists = async filter => {
   const contactExists = await Contact.exists(filter);
 
   if (contactExists) {
@@ -21,7 +21,7 @@ exports.contactExists = async (filter) => {
  * @param {string} id
  * @returns {Promise<void>}
  */
-exports.contactExistsById = async (id) => {
+exports.contactExistsById = async id => {
   const idIsValid = Types.ObjectId.isValid(id);
 
   if (!idIsValid) throw new AppError(404, 'Contact does not exist..');
@@ -34,35 +34,50 @@ exports.contactExistsById = async (id) => {
 /**
  * Create contact service.
  * @param {Object} contactData
+ * @param {Object} owner - contact owner
  * @returns {Promise<Contact>}
  */
-exports.addContact = async (contactData) => {
-  const newContact = await Contact.create(contactData);
+exports.addContact = (contactData, owner) => {
+  const { name, email, phone } = contactData;
 
-  newContact.password = undefined;
+  // const newContact = await Contact.create(contactData);
 
-  return newContact;
+  // newContact.password = undefined;
+
+  return Contact.create({
+    name,
+    email,
+    phone,
+    owner,
+  });
 };
 
 /**
  * Get contacts services.
+ * @param {Object} options -search, pagination, sort options
  * @returns {Promise<User[]>}
  */
-exports.getAllContacts = () => Contact.find();
+exports.getAllContacts = async options => {
+  const findOptions = { favorite: { $regex: options.favorite } };
+
+  const contacts = await Contact.find(findOptions);
+
+  return contacts;
+};
 
 /**
  * Get contact by id service.
  * @param {string} id
  * @returns {Promise<Contact>}
  */
-exports.getContactById = (id) => Contact.findById(id);
+exports.getContactById = id => Contact.findById(id);
 
 /**
  * Delete contact by id service.
  * @param {string} id
  * @returns {Promise<void>}
  */
-exports.removeContact = (id) => Contact.findByIdAndDelete(id);
+exports.removeContact = id => Contact.findByIdAndDelete(id);
 
 /**
  * Update contact data
@@ -73,7 +88,7 @@ exports.removeContact = (id) => Contact.findByIdAndDelete(id);
 exports.updateContact = async (id, contactData) => {
   const contact = await Contact.findById(id);
 
-  Object.keys(contactData).forEach((key) => {
+  Object.keys(contactData).forEach(key => {
     contact[key] = contactData[key];
   });
 

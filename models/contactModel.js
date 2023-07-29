@@ -14,18 +14,18 @@ const contactSchema = new Schema(
       required: true,
       unique: [true, 'Dublicated email..'],
     },
-    password: {
-      type: String,
-      required: true,
-      select: false,
-    },
+    // password: {
+    //   type: String,
+    //   required: true,
+    //   select: false,
+    // },
     phone: String,
 
-    role: {
-      type: String,
-      enum: Object.values(contactRolesEnum),
-      default: contactRolesEnum.USER,
-    },
+    // role: {
+    //   type: String,
+    //   enum: Object.values(contactRolesEnum),
+    //   default: contactRolesEnum.USER,
+    // },
     favorite: {
       type: Boolean,
       default: false,
@@ -33,6 +33,7 @@ const contactSchema = new Schema(
     owner: {
       type: Schema.Types.ObjectId,
       ref: 'user',
+      required: true,
     },
   },
   {
@@ -44,7 +45,7 @@ const contactSchema = new Schema(
 /**
  * Pre save mongoose hook. Fires on Create and Save
  */
-contactSchema.pre('save', async function(next) {
+contactSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
   const salt = await bcrypt.genSalt(10);

@@ -4,7 +4,7 @@ const contactService = require('../../services/contactServices');
  * Find all contact controller
  */
 const getAllContacts = catchAsync(async (req, res) => {
-  const contacts = await contactService.getAllContacts();
+  const contacts = await contactService.getAllContacts(req.query);
 
   res.status(200).json({
     msg: 'Success',
