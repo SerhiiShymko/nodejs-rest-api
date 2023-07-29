@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 const { catchAsync, usersValidators, AppError } = require('../utils');
-const userService = require('../services/userServices');
-const User = require('../models/userModel');
+const userServices = require('../services/userServices');
+const { checkToken } = require('../services/jwtService');
 
 exports.checkRegisterUserData = catchAsync(async (req, res, next) => {
   const { error, value } = usersValidators.registerUserDataValidator(req.body);
@@ -12,7 +12,7 @@ exports.checkRegisterUserData = catchAsync(async (req, res, next) => {
     throw new AppError(400, 'Invalid user data..');
   }
 
-  await userService.contactExists({ email: value.email });
+  await userServices.contactExists({ email: value.email });
 
   req.body = value;
 
@@ -23,20 +23,9 @@ exports.protect = catchAsync(async (req, res, next) => {
   const token =
     req.headers.authorization?.startsWith('Bearer') &&
     req.headers.authorization.split(' ')[1];
+  const userId = checkToken(token);
 
-  if (!token) throw new AppError(401, 'Not authorized');
-
-  let decoded;
-
-  try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (error) {
-    console.log(error.message);
-
-    throw new AppError(401, 'Not authorized');
-  }
-
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await userServices.getUserById(userId);
 
   if (!currentUser) throw new AppError(401, 'Not authorized');
 

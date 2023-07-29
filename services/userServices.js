@@ -1,9 +1,16 @@
-const { Types } = require('mongoose');
+// const { Types } = require('mongoose');
 
 const userRolesEnum = require('../constans/userRolesEnum');
 const User = require('../models/userModel');
 const { AppError } = require('../utils');
-const signToken = require('./jwtService');
+const { signToken } = require('./jwtService');
+
+/**
+ * Get user by id service.
+ * @param {string} id
+ * @returns {Promise<User>}
+ */
+exports.getUserById = id => User.findById(id);
 
 /**
  * Check if contact exists services.
@@ -23,7 +30,7 @@ exports.contactExists = async filter => {
  * @param {Object} userData
  * @returns {Object}
  */
-exports.registerUser = async (userData) => {
+exports.registerUser = async userData => {
   const newUserData = {
     ...userData,
     role: userRolesEnum.USER,
