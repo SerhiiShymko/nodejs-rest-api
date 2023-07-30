@@ -2,6 +2,7 @@
 const { catchAsync, usersValidators, AppError } = require('../utils');
 const userServices = require('../services/userServices');
 const { checkToken } = require('../services/jwtService');
+const { updateSubscription } = require('../services/contactServices');
 
 exports.checkRegisterUserData = catchAsync(async (req, res, next) => {
   const { error, value } = usersValidators.registerUserDataValidator(req.body);
@@ -27,7 +28,9 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   const currentUser = await userServices.getUserById(userId);
 
-  if (!currentUser) throw new AppError(401, 'Not authorized');
+  if (!currentUser || !currentUser.token || currentUser.token !== token) {
+    throw new AppError(401, 'Not authorized');
+  }
 
   req.user = currentUser;
 
@@ -48,3 +51,11 @@ exports.allowFor =
 
     next(new AppError(403, 'You are not allowed to perform this action'));
   };
+
+exports.updateSubscription = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { subscription } = req.body;
+
+  const updatedUser = await updateSubscription(id, subscription);
+  res.status(200).json(updatedUser);
+});

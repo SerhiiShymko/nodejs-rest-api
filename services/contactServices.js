@@ -3,6 +3,7 @@ const { Types } = require('mongoose');
 const Contact = require('../models/contactModel');
 const { AppError } = require('../utils');
 const userRolesEnum = require('../constans/userRolesEnum');
+const User = require('../models/userModel');
 
 /**
  * Check if contact exists services.
@@ -57,7 +58,7 @@ exports.addContact = (contactData, owner) => {
  * Get contacts services.
  * @param {Object} options -search, pagination, sort options
  * @param {Object} user -owner
- * @returns {Promise<User[]>}
+ * @returns {Promise<Object>}
  */
 exports.getAllContacts = async (options, user) => {
   // Search by name or by email
@@ -70,6 +71,11 @@ exports.getAllContacts = async (options, user) => {
       }
     : {};
 
+  // Check if 'favorite' filter is provided
+  if (options.favorite === 'true') {
+    findOptions.favorite = true;
+  }
+
   if (options.search && user.subscription === userRolesEnum.STARTER) {
     findOptions.$or.forEach(searchOption => {
       searchOption.owner = user;
@@ -77,12 +83,32 @@ exports.getAllContacts = async (options, user) => {
   }
 
   if (!options.search && user.subscription === userRolesEnum.STARTER) {
-    searchOption.owner = user;
+    findOptions.owner = user;
   }
 
-  const contacts = await Contact.find(findOptions);
+  // INIT DATABASE QUERY =========================
+  const contactsQuery = Contact.find(findOptions);
 
-  return contacts;
+  // SORTINFG FEATURE=============================
+  // orger = 'ASC' || 'DESC'
+  contactsQuery.sort(
+    `${options.order === 'DESC' ? '-' : ''}${options.sort || 'name'}`
+  );
+
+  // PAGINATION FEATURE===========================
+  // limit 10 of 100 - limit of docs
+  // skip 10 - count of skip docs
+
+  const paginationPage = options.page ? +options.page : 1;
+  const paginationLimit = options.limit ? +options.limit : 5;
+  const skip = (paginationPage - 1) * paginationLimit;
+
+  contactsQuery.skip(skip).limit(paginationLimit);
+
+  const contacts = await contactsQuery;
+  const total = await Contact.count(contactsQuery);
+
+  return { contacts, total };
 };
 
 /**
@@ -135,4 +161,30 @@ exports.updateContactFavorite = async (id, favorite) => {
   }
 
   return updateContact;
+};
+
+/**
+ *
+ * @param {String} id
+ * @param {String} subscription
+ * @returns
+ */
+exports.updateSubscription = async (id, subscription) => {
+  const allowSubscriptions = ['starter', 'pro', 'business'];
+
+  if (!allowSubscriptions.includes(subscription)) {
+    throw new AppError(403).json({ message: 'Invalid subscription value' });
+  }
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    throw new AppError(404).json({ message: 'User not found' });
+  }
+
+  user.subscription = subscription;
+
+  await user.save();
+
+  return user;
 };

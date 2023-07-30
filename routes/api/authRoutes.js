@@ -13,4 +13,8 @@ router.post(
 
 router.post('/login', authController.login);
 
+router.post('/logout', authMiddlewares.protect, authController.logout);
+
+router.patch('/users/:id/subscription', authMiddlewares.updateSubscription);
+
 module.exports = router;

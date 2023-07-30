@@ -64,6 +64,7 @@ exports.loginUser = async loginData => {
   user.password = undefined;
 
   const token = signToken(user.id);
+  await User.findByIdAndUpdate(user._id, { token });
 
   return { user, token };
 };
