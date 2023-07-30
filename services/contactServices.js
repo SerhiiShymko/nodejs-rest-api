@@ -2,6 +2,7 @@ const { Types } = require('mongoose');
 
 const Contact = require('../models/contactModel');
 const { AppError } = require('../utils');
+const userRolesEnum = require('../constans/userRolesEnum');
 
 /**
  * Check if contact exists services.
@@ -55,10 +56,29 @@ exports.addContact = (contactData, owner) => {
 /**
  * Get contacts services.
  * @param {Object} options -search, pagination, sort options
+ * @param {Object} user -owner
  * @returns {Promise<User[]>}
  */
-exports.getAllContacts = async options => {
-  const findOptions = { favorite: { $regex: options.favorite } };
+exports.getAllContacts = async (options, user) => {
+  // Search by name or by email
+  const findOptions = options.search
+    ? {
+        $or: [
+          { name: { $regex: options.search, $options: 'i' } },
+          { email: { $regex: options.search, $options: 'i' } },
+        ],
+      }
+    : {};
+
+  if (options.search && user.subscription === userRolesEnum.STARTER) {
+    findOptions.$or.forEach(searchOption => {
+      searchOption.owner = user;
+    });
+  }
+
+  if (!options.search && user.subscription === userRolesEnum.STARTER) {
+    searchOption.owner = user;
+  }
 
   const contacts = await Contact.find(findOptions);
 
