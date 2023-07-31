@@ -1,18 +1,21 @@
-const { Types } = require("mongoose");
+const { Types } = require('mongoose');
 
-const Contact = require("../models/contactsModel");
-const { AppError } = require("../utils");
+const Contact = require('../models/contactModel');
+const { AppError } = require('../utils');
+const userRolesEnum = require('../constans/userRolesEnum');
+const User = require('../models/userModel');
 
 /**
  * Check if contact exists services.
  * @param {Object} filter
  * @returns {Promise<void>}
  */
-exports.contactExists = async (filter) => {
+exports.contactExists = async filter => {
   const contactExists = await Contact.exists(filter);
 
-  if (contactExists)
-    throw new AppError(409, "Contact with this email exists..");
+  if (contactExists) {
+    throw new AppError(409, 'Contact with this email exists..');
+  }
 };
 
 /**
@@ -20,48 +23,107 @@ exports.contactExists = async (filter) => {
  * @param {string} id
  * @returns {Promise<void>}
  */
-exports.contactExistsById = async (id) => {
+exports.contactExistsById = async id => {
   const idIsValid = Types.ObjectId.isValid(id);
 
-  if (!idIsValid) throw new AppError(404, "Contact does not exist..");
+  if (!idIsValid) throw new AppError(404, 'Contact does not exist..');
 
   const contactExists = await Contact.exists({ _id: id });
 
-  if (!contactExists) throw new AppError(404, "Contact does not exist..");
+  if (!contactExists) throw new AppError(404, 'Contact does not exist..');
 };
 
 /**
  * Create contact service.
  * @param {Object} contactData
+ * @param {Object} owner - contact owner
  * @returns {Promise<Contact>}
  */
-exports.addContact = async (contactData) => {
-  const newContact = await Contact.create(contactData);
+exports.addContact = (contactData, owner) => {
+  const { name, email, phone } = contactData;
 
-  newContact.password = undefined;
+  // const newContact = await Contact.create(contactData);
 
-  return newContact;
+  // newContact.password = undefined;
+
+  return Contact.create({
+    name,
+    email,
+    phone,
+    owner,
+  });
 };
 
 /**
  * Get contacts services.
- * @returns {Promise<User[]>}
+ * @param {Object} options -search, pagination, sort options
+ * @param {Object} user -owner
+ * @returns {Promise<Object>}
  */
-exports.getAllContacts = () => Contact.find();
+exports.getAllContacts = async (options, user) => {
+  // Search by name or by email
+  const findOptions = options.search
+    ? {
+        $or: [
+          { name: { $regex: options.search, $options: 'i' } },
+          { email: { $regex: options.search, $options: 'i' } },
+        ],
+      }
+    : {};
+
+  // Check if 'favorite' filter is provided
+  if (options.favorite === 'true') {
+    findOptions.favorite = true;
+  }
+
+  if (options.search && user.subscription === userRolesEnum.STARTER) {
+    findOptions.$or.forEach(searchOption => {
+      searchOption.owner = user;
+    });
+  }
+
+  if (!options.search && user.subscription === userRolesEnum.STARTER) {
+    findOptions.owner = user;
+  }
+
+  // INIT DATABASE QUERY =========================
+  const contactsQuery = Contact.find(findOptions);
+
+  // SORTINFG FEATURE=============================
+  // orger = 'ASC' || 'DESC'
+  contactsQuery.sort(
+    `${options.order === 'DESC' ? '-' : ''}${options.sort || 'name'}`
+  );
+
+  // PAGINATION FEATURE===========================
+  // limit 10 of 100 - limit of docs
+  // skip 10 - count of skip docs
+
+  const paginationPage = options.page ? +options.page : 1;
+  const paginationLimit = options.limit ? +options.limit : 5;
+  const skip = (paginationPage - 1) * paginationLimit;
+
+  contactsQuery.skip(skip).limit(paginationLimit);
+
+  const contacts = await contactsQuery;
+  const total = await Contact.count(contactsQuery);
+
+  return { contacts, total };
+};
 
 /**
  * Get contact by id service.
  * @param {string} id
  * @returns {Promise<Contact>}
  */
-exports.getContactById = (id) => Contact.findById(id);
+exports.getContactById = id => Contact.findById(id);
 
 /**
  * Delete contact by id service.
  * @param {string} id
  * @returns {Promise<void>}
  */
-exports.removeContact = (id) => Contact.findByIdAndDelete(id);
+exports.removeContact = id => Contact.findByIdAndDelete(id);
 
 /**
  * Update contact data
@@ -72,7 +134,7 @@ exports.removeContact = (id) => Contact.findByIdAndDelete(id);
 exports.updateContact = async (id, contactData) => {
   const contact = await Contact.findById(id);
 
-  Object.keys(contactData).forEach((key) => {
+  Object.keys(contactData).forEach(key => {
     contact[key] = contactData[key];
   });
 
@@ -95,8 +157,34 @@ exports.updateContactFavorite = async (id, favorite) => {
   );
 
   if (!updateContact) {
-    throw new AppError(404).json({ message: "Contact not found." });
+    throw new AppError(404).json({ message: 'Contact not found.' });
   }
 
   return updateContact;
+};
+
+/**
+ *
+ * @param {String} id
+ * @param {String} subscription
+ * @returns
+ */
+exports.updateSubscription = async (id, subscription) => {
+  const allowSubscriptions = ['starter', 'pro', 'business'];
+
+  if (!allowSubscriptions.includes(subscription)) {
+    throw new AppError(403).json({ message: 'Invalid subscription value' });
+  }
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    throw new AppError(404).json({ message: 'User not found' });
+  }
+
+  user.subscription = subscription;
+
+  await user.save();
+
+  return user;
 };

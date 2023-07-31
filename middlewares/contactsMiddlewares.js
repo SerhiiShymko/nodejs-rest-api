@@ -1,5 +1,5 @@
-const { AppError, catchAsync, contactsValidators } = require("../utils");
-const contactService = require("../services/contactServices");
+const { AppError, catchAsync, contactsValidators } = require('../utils');
+const contactService = require('../services/contactServices');
 
 /**
  * Check user exists in db by id middleware.
@@ -20,7 +20,7 @@ exports.checkCreateContactById = catchAsync(async (req, res, next) => {
   if (error) {
     console.log(error);
 
-    throw new AppError(400, "Invalid contact data..");
+    throw new AppError(400, 'Invalid contact data..');
   }
 
   await contactService.contactExists({ email: value.email });
@@ -43,7 +43,7 @@ exports.checkUpdateContactById = catchAsync(async (req, res, next) => {
   if (error) {
     console.log(error);
 
-    throw new AppError(400, "Invalid contact data..");
+    throw new AppError(400, 'Invalid contact data..');
   }
 
   req.body = value;
@@ -64,7 +64,7 @@ exports.checkUpdateContactFavorite = catchAsync(async (req, res, next) => {
   if (error) {
     console.log(error);
 
-    throw new AppError(400, "Invalid contact data..");
+    throw new AppError(400, 'Invalid contact data..');
   }
 
   req.body = value;

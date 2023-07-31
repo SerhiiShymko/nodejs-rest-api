@@ -1,5 +1,5 @@
-const { catchAsync } = require("../../utils");
-const contactService = require("../../services/contactServices");
+const { catchAsync } = require('../../utils');
+const contactService = require('../../services/contactServices');
 /**
  * Delete contact controller
  */

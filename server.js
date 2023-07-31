@@ -1,30 +1,32 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const morgan = require("morgan");
-const mongoose = require("mongoose");
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const morgan = require('morgan');
+const mongoose = require('mongoose');
 
 const envPath =
-  process.env.NODE_ENV === "production"
-    ? "./environments/production.env"
-    : "./environments/development.env";
+  process.env.NODE_ENV === 'production'
+    ? './environments/production.env'
+    : './environments/development.env';
 dotenv.config({ path: envPath });
 
-const contactsRoutes = require("./routes/api/contactsRoutes");
+const contactsRoutes = require('./routes/api/contactsRoutes');
+const authRoutes = require('./routes/api/authRoutes');
 
 const app = express();
 
-if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // MONGODB CONECTION==============================
 
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
-    console.log("Database connection successful");
+    console.log('Database connection successful');
   })
-  .catch((error) => {
+  .catch(error => {
     console.log(error);
+
     process.exit(1);
   });
 
@@ -33,14 +35,15 @@ app.use(express.json());
 app.use(cors());
 
 // ROUTES==========================================
-app.use("/contacts", contactsRoutes);
+app.use('/contacts', contactsRoutes);
+app.use('/auth', authRoutes);
 
 /**
  * Not found request handler
  */
-app.all("*", (req, res) => {
+app.all('*', (req, res) => {
   res.status(404).json({
-    msg: "Oops! Resource not found..",
+    msg: 'Oops! Resource not found..',
   });
 });
 
