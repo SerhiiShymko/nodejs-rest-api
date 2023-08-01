@@ -1,6 +1,7 @@
 /* eslint-disable quotes */
 const { model, Schema } = require('mongoose');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const userRolesEnum = require('../constans/userRolesEnum');
 
@@ -25,7 +26,9 @@ const userSchema = new Schema(
       type: String,
       default: '',
     },
+    avatar: String,
   },
+
   {
     timestamps: true,
     versionKey: false,
@@ -36,6 +39,12 @@ const userSchema = new Schema(
  * Pre save mongoose hook. Fires on Create and Save
  */
 userSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    const emailHesh = crypto.createHash('md5').update(this.email).digest('hex');
+
+    this.avatar = `https:www.gravatar.com/avatar/${emailHesh}.jpg?d=robohash`;
+  }
+
   if (!this.isModified('password')) return next();
 
   const salt = await bcrypt.genSalt(10);

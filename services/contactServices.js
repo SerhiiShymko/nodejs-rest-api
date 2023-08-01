@@ -87,7 +87,10 @@ exports.getAllContacts = async (options, user) => {
   }
 
   // INIT DATABASE QUERY =========================
-  const contactsQuery = Contact.find(findOptions);
+  const contactsQuery = Contact.find(findOptions).populate({
+    path: 'owner',
+    select: 'name email subscription',
+  });
 
   // SORTINFG FEATURE=============================
   // orger = 'ASC' || 'DESC'

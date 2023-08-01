@@ -68,3 +68,15 @@ exports.loginUser = async loginData => {
 
   return { user, token };
 };
+
+exports.checkUserPassword = async (userId, currentPassword, newPassword) => {
+  const user = await User.findById(userId).select('password');
+
+  if (!(await user.checkPassword(currentPassword, user.password))) {
+    throw new AppError(401, 'Current pasword wrong');
+  }
+
+  user.password = newPassword;
+
+  await user.save();
+};

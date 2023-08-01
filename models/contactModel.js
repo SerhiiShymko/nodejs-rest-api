@@ -1,7 +1,7 @@
 const { model, Schema } = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const contactRolesEnum = require('../constans/contactRolesEnum');
+// const contactRolesEnum = require('../constans/contactRolesEnum');
 
 const contactSchema = new Schema(
   {
