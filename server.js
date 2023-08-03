@@ -60,6 +60,6 @@ app.use((error, req, res, next) => {
 // SERVER INIT=======================================
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
+module.exports = app.listen(port, () => {
   console.log(`Server running. Use our API on port: ${port}`);
 });
