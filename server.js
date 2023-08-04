@@ -36,8 +36,8 @@ app.use(cors());
 app.use(express.static('public'));
 
 // ROUTES==========================================
-app.use('/contacts', contactsRoutes);
-app.use('/auth', authRoutes);
+app.use('/api/contacts', contactsRoutes);
+app.use('/api/auth', authRoutes);
 
 /**
  * Not found request handler

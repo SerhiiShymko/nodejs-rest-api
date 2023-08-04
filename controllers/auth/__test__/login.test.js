@@ -2,7 +2,7 @@ const request = require('supertest');
 
 const app = require('../../../server');
 
-describe('POST /auth/login', () => {
+describe('POST /api/auth/login', () => {
   beforeAll(() => {
     console.log('before all');
   });
@@ -22,7 +22,9 @@ describe('POST /auth/login', () => {
       password: 'Pass*1234',
     };
 
-    const res = (await request(app).post('auth/login')).setEncoding(testData);
+    const res = (await request(app).post('/api/auth/login')).setEncoding(
+      testData
+    );
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(
@@ -39,7 +41,9 @@ describe('POST /auth/login', () => {
       password: 'Pass*1234',
     };
 
-    const res = (await request(app).post('/auth/login')).setEncoding(testData);
+    const res = (await request(app).post('/api/auth/login')).setEncoding(
+      testData
+    );
 
     expect(res.statusCode).toBe(401);
   });
@@ -49,7 +53,9 @@ describe('POST /auth/login', () => {
       email: 'serhii.shymko@vestibul.com',
     };
 
-    const res = (await request(app).post('auth/login')).setEncoding(testData);
+    const res = (await request(app).post('/api/auth/login')).setEncoding(
+      testData
+    );
 
     expect(res.statusCode).toBe(401);
   });
