@@ -105,7 +105,7 @@ exports.checkUpdateContactFavorite = catchAsync(async (req, res, next) => {
 //   },
 // }).single('avatar');
 
-exports.uploadUserAvatar = ImageService.InitUploadMiddleware('avatar');
+exports.uploadUserAvatar = ImageService.initUploadMiddleware('avatar');
 
 exports.checkPassword = catchAsync(async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;

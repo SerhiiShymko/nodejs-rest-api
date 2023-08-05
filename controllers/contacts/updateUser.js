@@ -5,7 +5,7 @@ const updateUser = catchAsync(async (req, res) => {
   const { user, file } = req;
 
   if (file) {
-    user.avatar = await ImageService.save(file, null, 'images', user.id);
+    user.avatarURL = await ImageService.save(file, null, 'avatars', user.id);
   }
 
   Object.keys(req.body).forEach(key => {

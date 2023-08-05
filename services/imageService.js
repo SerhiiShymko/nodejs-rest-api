@@ -8,7 +8,12 @@ const fse = require('fs-extra');
 const { AppError } = require('../utils');
 
 class ImageService {
-  static InitUploadMiddleware(name) {
+  /**
+   * Initialize express middleware.
+   * @param {string} name
+   * @returns {Object}
+   */
+  static initUploadMiddleware(name) {
     const multerStorage = multer.memoryStorage();
 
     const multerFilter = (req, file, cbk) => {
@@ -53,11 +58,3 @@ class ImageService {
 }
 
 module.exports = ImageService;
-
-/** Jimp
- const avatar = await jimp.read(file.buffer)'
- await avatar
-    .cover(options.width || 250, options.heigth || 250)
-    .quality(90)
-    .writeAsync(path.join(fullFilePath, fileName));
- */

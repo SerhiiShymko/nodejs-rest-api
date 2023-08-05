@@ -44,9 +44,9 @@ const userSchema = new Schema(
  */
 userSchema.pre('save', async function (next) {
   if (this.isNew) {
-    const emailHesh = crypto.createHash('md5').update(this.email).digest('hex');
+    const emailHash = crypto.createHash('md5').update(this.email).digest('hex');
 
-    this.avatarURL = `https:www.gravatar.com/avatar/${emailHesh}.jpg?d=robohash`;
+    this.avatarURL = `https://www.gravatar.com/avatar/${emailHash}.jpg?d=robohash`;
   }
 
   if (!this.isModified('password')) return next();

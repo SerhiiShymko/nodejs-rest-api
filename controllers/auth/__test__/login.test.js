@@ -18,13 +18,11 @@ describe('POST /api/auth/login', () => {
 
   it('should return user object and jwt', async () => {
     const testData = {
-      email: 'serhii.shymko@vestibul.com',
+      email: 'avatar2@vestibul.com',
       password: 'Pass*1234',
     };
 
-    const res = (await request(app).post('/api/auth/login')).setEncoding(
-      testData
-    );
+    const res = await request(app).post('/api/auth/login').send(testData);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(
@@ -41,9 +39,7 @@ describe('POST /api/auth/login', () => {
       password: 'Pass*1234',
     };
 
-    const res = (await request(app).post('/api/auth/login')).setEncoding(
-      testData
-    );
+    const res = await request(app).post('/api/auth/login').send(testData);
 
     expect(res.statusCode).toBe(401);
   });
@@ -53,9 +49,7 @@ describe('POST /api/auth/login', () => {
       email: 'serhii.shymko@vestibul.com',
     };
 
-    const res = (await request(app).post('/api/auth/login')).setEncoding(
-      testData
-    );
+    const res = await request(app).post('/api/auth/login').send(testData);
 
     expect(res.statusCode).toBe(401);
   });
