@@ -2,7 +2,7 @@
 
 const userRolesEnum = require('../constans/userRolesEnum');
 const User = require('../models/userModel');
-const { AppError } = require('../utils');
+const { AppError, userNameHandler } = require('../utils');
 const { signToken } = require('./jwtService');
 
 /**
@@ -31,8 +31,11 @@ exports.contactExists = async filter => {
  * @returns {Object}
  */
 exports.registerUser = async userData => {
+  const { name, ...restUserData } = userData;
+
   const newUserData = {
-    ...userData,
+    ...restUserData,
+    name: userNameHandler(name),
     role: userRolesEnum.USER,
   };
 
@@ -55,7 +58,7 @@ exports.loginUser = async loginData => {
 
   const user = await User.findOne({ email }).select('+password');
 
-  if (!user) throw new AppError(401, 'Not authorized');
+  if (!user || !password) throw new AppError(401, 'Not authorized');
 
   const passwordIsValid = await user.checkPassword(password, user.password);
 
@@ -67,4 +70,16 @@ exports.loginUser = async loginData => {
   await User.findByIdAndUpdate(user._id, { token });
 
   return { user, token };
+};
+
+exports.checkUserPassword = async (userId, currentPassword, newPassword) => {
+  const user = await User.findById(userId).select('password');
+
+  if (!(await user.checkPassword(currentPassword, user.password))) {
+    throw new AppError(401, 'Current pasword wrong');
+  }
+
+  user.password = newPassword;
+
+  await user.save();
 };

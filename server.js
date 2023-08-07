@@ -33,10 +33,11 @@ mongoose
 // MIDDLEWARE=====================================
 app.use(express.json());
 app.use(cors());
+app.use(express.static('public'));
 
 // ROUTES==========================================
-app.use('/contacts', contactsRoutes);
-app.use('/auth', authRoutes);
+app.use('/api/contacts', contactsRoutes);
+app.use('/api/auth', authRoutes);
 
 /**
  * Not found request handler
@@ -59,6 +60,6 @@ app.use((error, req, res, next) => {
 // SERVER INIT=======================================
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
+module.exports = app.listen(port, () => {
   console.log(`Server running. Use our API on port: ${port}`);
 });
