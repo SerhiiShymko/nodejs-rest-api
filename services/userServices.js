@@ -1,4 +1,5 @@
 // const { Types } = require('mongoose');
+const crypto = require('crypto');
 
 const userRolesEnum = require('../constans/userRolesEnum');
 const User = require('../models/userModel');
@@ -82,4 +83,30 @@ exports.checkUserPassword = async (userId, currentPassword, newPassword) => {
   user.password = newPassword;
 
   await user.save();
+};
+
+/**
+ *
+ * @param {string} email
+ * @returns {Promise<User>}
+ */
+exports.getUserByEmail = async email => User.findOne({ email });
+
+exports.resetPassword = async (otp, password) => {
+  const hashedToken = crypto.createHash('sha256').update(otp).digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  if (!user) throw new AppError(400, 'Token is invalid..');
+
+  user.password = password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+
+  await user.save();
+
+  user.password = undefined;
 };
