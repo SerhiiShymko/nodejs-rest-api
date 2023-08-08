@@ -90,9 +90,9 @@ exports.checkUserPassword = async (userId, currentPassword, newPassword) => {
  * @param {string} email
  * @returns {Promise<User>}
  */
-exports.getUserByEmail = async email => User.findOne({ email });
+exports.getUserByEmail = email => User.findOne({ email });
 
-exports.resetPassword = async (otp, password) => {
+exports.resetUserPassword = async (otp, password) => {
   const hashedToken = crypto.createHash('sha256').update(otp).digest('hex');
 
   const user = await User.findOne({
@@ -109,4 +109,6 @@ exports.resetPassword = async (otp, password) => {
   await user.save();
 
   user.password = undefined;
+
+  return user;
 };

@@ -63,7 +63,7 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.checkPassword = (candidate, hash) =>
   bcrypt.compare(candidate, hash);
 
-userSchema.method.createPasswordResetToken = function () {
+userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
 
   this.passwordResetToken = crypto
