@@ -13,7 +13,16 @@ class Email {
 
   _initTransport() {
     if (process.env.NODE_ENV === 'production') {
-      // use SENGRID
+      // use Ukr NET
+      return nodemailer.createTransport({
+        host: 'smtp.ukr.net',
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.UKR_NET_EMAIL,
+          pass: process.env.UKR_NET_PASSWORD,
+        },
+      });
     }
     // use MAILTRAP for tests
     return nodemailer.createTransport({

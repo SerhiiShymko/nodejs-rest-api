@@ -112,3 +112,14 @@ exports.resetUserPassword = async (otp, password) => {
 
   return user;
 };
+
+exports.verifyToken = async (verificationToken) => {
+  const user = await User.findOne({ verificationToken });
+
+  if (!user) throw new AppError(404, 'User not found');
+
+  user.verify = true;
+  user.verificationToken = null;
+
+  await user.save();
+};

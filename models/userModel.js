@@ -34,7 +34,16 @@ const userSchema = new Schema(
     passwordResetToken: String,
     passwordResetExpires: Date,
   },
-
+  {
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      required: [true, 'Verify token is required'],
+    },
+  },
   {
     timestamps: true,
     versionKey: false,
