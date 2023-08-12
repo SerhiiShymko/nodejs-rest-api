@@ -1,5 +1,6 @@
 // const { Types } = require('mongoose');
 const crypto = require('crypto');
+const uuid = require('uuid').v4;
 
 const userRolesEnum = require('../constans/userRolesEnum');
 const User = require('../models/userModel');
@@ -33,12 +34,24 @@ exports.contactExists = async filter => {
  */
 exports.registerUser = async userData => {
   const { name, ...restUserData } = userData;
+  // const verificationCode = uuid();
 
   const newUserData = {
     ...restUserData,
     name: userNameHandler(name),
     role: userRolesEnum.USER,
+    // verificationCode,
   };
+  // const verifyEmail = {
+  //   to: email,
+  //   subject: 'Verify email',
+  //   html: `<a
+  //       target="_blank"
+  //       href="http://localhost:3000/api/verify/${verificationCode}"
+  //     >
+  //       Click verify email
+  //     </a>`,
+  // };
 
   const newUser = await User.create(newUserData);
 
@@ -60,6 +73,8 @@ exports.loginUser = async loginData => {
   const user = await User.findOne({ email }).select('+password');
 
   if (!user || !password) throw new AppError(401, 'Not authorized');
+
+  if (!user.verify) throw new AppError(401, 'Email not verified');
 
   const passwordIsValid = await user.checkPassword(password, user.password);
 
@@ -113,7 +128,7 @@ exports.resetUserPassword = async (otp, password) => {
   return user;
 };
 
-exports.verifyToken = async (verificationToken) => {
+exports.verifyToken = async verificationToken => {
   const user = await User.findOne({ verificationToken });
 
   if (!user) throw new AppError(404, 'User not found');

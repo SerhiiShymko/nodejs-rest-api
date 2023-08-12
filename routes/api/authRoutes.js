@@ -18,7 +18,7 @@ router.post('/login', authController.login);
 
 router.post('/logout', authMiddlewares.protect, authController.logout);
 
-router.patch('/users/:id/subscription', authMiddlewares.updateSubscription);
+router.patch('/:id/subscription', authMiddlewares.updateSubscription);
 
 router.post('/forgot-password', authController.forgotPassword);
 
