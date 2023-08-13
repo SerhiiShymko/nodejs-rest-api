@@ -3,6 +3,9 @@ const {
   getUserByEmail,
   createPasswordResetToken,
 } = require('../../services/userServices');
+const Email = require('../../services/emailService');
+
+const { PORT, BASE_URL } = process.env;
 
 const resendVerificationEmail = catchAsync(async (req, res) => {
   const { email } = req.body;
@@ -32,9 +35,13 @@ const resendVerificationEmail = catchAsync(async (req, res) => {
 
   await user.save();
 
-  // const verificationLink = `http://localhost:3000/users/verify/${newVerificationToken}`;
+  const verificationLink = `${BASE_URL}:${PORT}/api/auth/verify/${newVerificationToken}`;
 
-  // Відправка листа з посиланням для верифікації на вказаний email
+  try {
+    await new Email(user, verificationLink).sendHello();
+  } catch (error) {
+    console.log(error);
+  }
 
   res.status(200).json({
     message: 'Verification email sent',

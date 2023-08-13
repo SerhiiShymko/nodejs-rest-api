@@ -34,24 +34,24 @@ exports.contactExists = async filter => {
  */
 exports.registerUser = async userData => {
   const { name, ...restUserData } = userData;
-  // const verificationCode = uuid();
+  const verificationCode = uuid();
 
   const newUserData = {
     ...restUserData,
     name: userNameHandler(name),
     role: userRolesEnum.USER,
-    // verificationCode,
+    verificationCode,
   };
-  // const verifyEmail = {
-  //   to: email,
-  //   subject: 'Verify email',
-  //   html: `<a
-  //       target="_blank"
-  //       href="http://localhost:3000/api/verify/${verificationCode}"
-  //     >
-  //       Click verify email
-  //     </a>`,
-  // };
+  const verifyEmail = {
+    to: email,
+    subject: 'Verify email',
+    html: `<a
+        target="_blank"
+        href="http://localhost:3000/api/verify/${verificationCode}"
+      >
+        Click verify email
+      </a>`,
+  };
 
   const newUser = await User.create(newUserData);
 
@@ -128,13 +128,13 @@ exports.resetUserPassword = async (otp, password) => {
   return user;
 };
 
-exports.verifyToken = async verificationToken => {
-  const user = await User.findOne({ verificationToken });
+exports.verifyCode = async verificationCode => {
+  const user = await User.findOne({ verificationCode });
 
   if (!user) throw new AppError(404, 'User not found');
 
   user.verify = true;
-  user.verificationToken = null;
+  user.verificationCode = null;
 
   await user.save();
 };

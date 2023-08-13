@@ -4,6 +4,8 @@ const logout = require('./logout');
 const current = require('./current');
 const forgotPassword = require('./forgotPassword');
 const resetPassword = require('./resetPassword');
+const resendVerificationEmail = require('./resendVerificationEmail');
+const verify = require('./verify');
 
 module.exports = {
   register,
@@ -12,4 +14,6 @@ module.exports = {
   current,
   forgotPassword,
   resetPassword,
+  resendVerificationEmail,
+  verify,
 };

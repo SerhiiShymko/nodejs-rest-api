@@ -2,17 +2,18 @@ const { Router } = require('express');
 
 const authController = require('../../controllers/auth');
 const authMiddlewares = require('../../middlewares/authMiddlewares');
-// const verifyRouter = require('./verifyRoutes');
 
 const router = Router();
-
-// router.use('/verify', verifyRouter);
 
 router.post(
   '/register',
   authMiddlewares.checkRegisterUserData,
   authController.register
 );
+
+router.get('/verify/:verificationToken', authController.verify);
+
+router.post('/verify', authController.resendVerificationEmail);
 
 router.post('/login', authController.login);
 
@@ -23,9 +24,5 @@ router.patch('/:id/subscription', authMiddlewares.updateSubscription);
 router.post('/forgot-password', authController.forgotPassword);
 
 router.patch('/reset-password/:otp', authController.resetPassword);
-
-// router.post('/verify');
-
-// router.get('/verify/:verificationToken', authController.verify);
 
 module.exports = router;
