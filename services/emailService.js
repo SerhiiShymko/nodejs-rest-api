@@ -12,7 +12,7 @@ class Email {
   }
 
   _initTransport() {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'development') {
       // use Ukr NET
       return nodemailer.createTransport({
         host: 'smtp.ukr.net',
@@ -64,4 +64,5 @@ class Email {
     await this._send('passwordreset', 'Password reset instruction..');
   }
 }
+
 module.exports = Email;

@@ -12,7 +12,6 @@ dotenv.config({ path: envPath });
 
 const contactsRoutes = require('./routes/api/contactsRoutes');
 const authRoutes = require('./routes/api/authRoutes');
-// const verifyRoutes = require('./routes/api/verifyRoutes');
 
 const app = express();
 
@@ -39,7 +38,6 @@ app.use(express.static('public'));
 // ROUTES==========================================
 app.use('/api/contacts', contactsRoutes);
 app.use('/api/auth', authRoutes);
-// app.use('/api/verify', verifyRoutes);
 
 /**
  * Not found request handler

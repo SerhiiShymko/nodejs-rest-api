@@ -1,3 +1,5 @@
+const uuid = require('uuid').v4;
+
 const { catchAsync } = require('../../utils');
 const {
   getUserByEmail,
@@ -9,6 +11,7 @@ const { PORT, BASE_URL } = process.env;
 
 const resendVerificationEmail = catchAsync(async (req, res) => {
   const { email } = req.body;
+  const generateVerificationToken = uuid();
 
   if (!email) {
     return res.status(400).json({
@@ -30,7 +33,7 @@ const resendVerificationEmail = catchAsync(async (req, res) => {
     });
   }
 
-  const newVerificationToken = await createPasswordResetToken();
+  const newVerificationToken = await generateVerificationToken();
   user.verificationToken = newVerificationToken;
 
   await user.save();

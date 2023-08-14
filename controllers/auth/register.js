@@ -3,10 +3,13 @@ const { registerUser } = require('../../services/userServices');
 const Email = require('../../services/emailService');
 
 const register = catchAsync(async (req, res) => {
-  const { user, token } = await registerUser(req.body);
+  const { user, token, verificationToken } = await registerUser(req.body);
 
   try {
-    await new Email(user, 'localhost:3000').sendHello();
+    await new Email(
+      user,
+      `http://localhost:3000/api/verify/${verificationToken}`
+    ).sendHello();
   } catch (error) {
     console.log(error);
   }
@@ -14,6 +17,7 @@ const register = catchAsync(async (req, res) => {
   res.status(201).json({
     user,
     token,
+    verificationToken,
   });
 });
 
