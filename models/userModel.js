@@ -31,8 +31,19 @@ const userSchema = new Schema(
       default: '',
     },
     avatarURL: String,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
-
+  {
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationCode: {
+      type: String,
+      required: [true, 'Verify token is required'],
+    },
+  },
   {
     timestamps: true,
     versionKey: false,
@@ -60,6 +71,18 @@ userSchema.pre('save', async function (next) {
 // Custom mongoose method to validate password.
 userSchema.methods.checkPassword = (candidate, hash) =>
   bcrypt.compare(candidate, hash);
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
 
 const User = model('User', userSchema);
 

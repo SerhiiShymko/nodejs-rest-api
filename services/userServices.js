@@ -1,4 +1,6 @@
 // const { Types } = require('mongoose');
+const crypto = require('crypto');
+const uuid = require('uuid').v4;
 
 const userRolesEnum = require('../constans/userRolesEnum');
 const User = require('../models/userModel');
@@ -32,12 +34,24 @@ exports.contactExists = async filter => {
  */
 exports.registerUser = async userData => {
   const { name, ...restUserData } = userData;
+  const verificationToken = uuid();
 
   const newUserData = {
     ...restUserData,
     name: userNameHandler(name),
     role: userRolesEnum.USER,
+    verificationToken,
   };
+  // const verifyEmail = {
+  //   to: email,
+  //   subject: 'Verify email',
+  //   html: `<a
+  //       target="_blank"
+  //       href="http://localhost:3000/api/verify/${verificationCode}"
+  //     >
+  //       Click verify email
+  //     </a>`,
+  // };
 
   const newUser = await User.create(newUserData);
 
@@ -45,7 +59,7 @@ exports.registerUser = async userData => {
 
   const token = signToken(newUser.id);
 
-  return { user: newUser, token };
+  return { user: newUser, token, verificationToken };
 };
 
 /**
@@ -59,6 +73,8 @@ exports.loginUser = async loginData => {
   const user = await User.findOne({ email }).select('+password');
 
   if (!user || !password) throw new AppError(401, 'Not authorized');
+
+  if (!user.verify) throw new AppError(401, 'Email not verified');
 
   const passwordIsValid = await user.checkPassword(password, user.password);
 
@@ -83,3 +99,42 @@ exports.checkUserPassword = async (userId, currentPassword, newPassword) => {
 
   await user.save();
 };
+
+/**
+ *
+ * @param {string} email
+ * @returns {Promise<User>}
+ */
+exports.getUserByEmail = email => User.findOne({ email });
+
+exports.resetUserPassword = async (otp, password) => {
+  const hashedToken = crypto.createHash('sha256').update(otp).digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  if (!user) throw new AppError(400, 'Token is invalid..');
+
+  user.password = password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+
+  await user.save();
+
+  user.password = undefined;
+
+  return user;
+};
+
+// exports.verifyCode = async verificationCode => {
+//   const user = await User.findOne({ verificationCode });
+
+//   if (!user) throw new AppError(404, 'User not found');
+
+//   user.verify = true;
+//   user.verificationCode = null;
+
+//   await user.save();
+// };
